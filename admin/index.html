@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administration | ODIT</title>
+<style>
+:root{font-family:Inter,system-ui,Arial,sans-serif;color:#e9fff3;background:#061b15}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#155c42,#061b15 55%);min-height:100vh}header{padding:20px max(20px,calc((100vw - 1080px)/2));display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff25}header strong{font-size:25px}header strong span{color:#45e09b}main{max-width:1080px;margin:40px auto;padding:0 20px 80px}.panel{background:#ffffff0a;border:1px solid #ffffff26;border-radius:18px;padding:26px;margin:20px 0}h1{font-size:clamp(28px,5vw,43px);margin:0 0 8px}h2{margin:0 0 16px;font-size:20px}p,.hint{color:#b9d6c9;line-height:1.5}label{display:block;font-size:13px;color:#c9e9da;margin-bottom:6px;font-weight:650}input,textarea,select{display:block;width:100%;padding:12px 13px;border-radius:9px;background:#0d2c23;border:1px solid #ffffff45;color:#f1fff8;font:inherit}textarea{min-height:94px;resize:vertical}input:focus,textarea:focus,select:focus{outline:2px solid #43db94}button,.button{background:#42db94;color:#073526;border:0;border-radius:9px;padding:12px 17px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}button:hover{filter:brightness(1.09)}button:disabled{opacity:.5;cursor:wait}.secondary{background:#244c3e;color:#effff5}.danger{background:#8c3039;color:white}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.full{grid-column:1/-1}.item{border:1px solid #ffffff26;padding:18px;border-radius:12px;margin:12px 0;background:#ffffff08}.item h3{margin:4px 0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.status{display:inline-block;padding:4px 9px;background:#154b37;border-radius:20px;font-size:12px;color:#b8ffdc}.error{color:#ffb7b7}.success{color:#8affbf}.hidden{display:none!important}#notice{min-height:24px;margin:12px 0}small{color:#b9d6c9}@media(max-width:650px){.grid{grid-template-columns:1fr}.panel{padding:18px}header{padding:18px 20px}}
+</style></head>
+<body><header><strong>OD<span>IT</span> <small>Administration</small></strong><a href="../" style="color:#8ff2bc">← Site public</a></header>
+<main><h1>Tableau de bord ODIT</h1><p>Gestion sécurisée des activités · Accès réservé aux responsables autorisés</p>
+<div id="notice" role="status" aria-live="polite"></div>
+<section class="panel" id="login"><h2>Connexion administrateur</h2><form id="loginForm" style="max-width:440px"><div style="margin:15px 0"><label for="email">Adresse e-mail</label><input id="email" type="email" autocomplete="username" required></div><div style="margin:15px 0"><label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password" required></div><button id="loginBtn" type="submit">Se connecter</button></form><p class="hint">Les inscriptions publiques sont désactivées. Utilisez le compte créé dans Supabase Authentication.</p></section>
+<section id="dashboard" class="hidden"><div class="panel toolbar"><div><strong id="identity"></strong><br><small id="role"></small></div><button id="logout" class="secondary">Se déconnecter</button></div>
+<section class="panel"><div class="toolbar"><h2>Activités</h2><button id="newBtn">+ Nouvelle activité</button></div><div id="activities">Chargement…</div></section>
+<section class="panel hidden" id="editor"><div class="toolbar"><h2 id="editorTitle">Nouvelle activité</h2><button type="button" class="secondary" id="cancelBtn">Fermer</button></div>
+<form id="activityForm"><div class="grid">
+<div><label for="slug">Identifiant URL (slug) *</label><input id="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="atelier-reseaux-2026"></div>
+<div><label for="status">Statut *</label><select id="status"><option value="draft">Brouillon (draft)</option><option value="published">Publié (published)</option><option value="archived">Archivé (archived)</option></select></div>
+<div><label for="title_fr">Titre français *</label><input id="title_fr" required></div><div><label for="title_en">Titre anglais</label><input id="title_en"></div>
+<div class="full"><label for="description_fr">Description française</label><textarea id="description_fr"></textarea></div><div class="full"><label for="description_en">Description anglaise</label><textarea id="description_en"></textarea></div>
+<div><label for="speaker_name">Intervenant</label><input id="speaker_name"></div><div><label for="speaker_role">Fonction de l'intervenant</label><input id="speaker_role"></div>
+<div><label for="event_date">Début (heure de Kinshasa) *</label><input id="event_date" type="datetime-local" required></div><div><label for="end_date">Fin (heure de Kinshasa)</label><input id="end_date" type="datetime-local"></div>
+<div class="full"><label for="meeting_url">Lien de réunion HTTPS</label><input id="meeting_url" type="url" placeholder="https://..."></div>
+</div><p class="hint">Les dates sont saisies en heure de Kinshasa (UTC+1). Le statut « Brouillon » reste invisible sur le site public.</p><button id="saveBtn" type="submit">Enregistrer l'activité</button></form></section></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+'use strict';
+const URL_SUPABASE='https://rniaixhxbfiznhrnxvvn.supabase.co';
+const PUBLIC_KEY='sb_publishable_bS_yjMA0eCPk2SF5IQHTZA_3H2OxLRT';
+const $=id=>document.getElementById(id);
+let client, currentUser=null, editingId=null, items=[];
+function notify(message,isError=false){$('notice').textContent=message;$('notice').className=isError?'error':'success'}
+function errorText(e){return e?.message||'Erreur inconnue'}
+function localKinshasa(iso){if(!iso)return '';const d=new Date(new Date(iso).getTime()+3600000);return d.toISOString().slice(0,16)}
+function toUTC(value){return value?new Date(value+':00+01:00').toISOString():null}
+function setBusy(id,b){$(id).disabled=b}
+function clearAuthUI(){$('login').classList.remove('hidden');$('dashboard').classList.add('hidden');currentUser=null}
+async function verify(){
+ const {data:{user},error}=await client.auth.getUser();
+ if(error||!user){clearAuthUI();return}
+ const {data, error:roleError}=await client.from('admin_users').select('role').eq('user_id',user.id).maybeSingle();
+ if(roleError||!data||!['super_admin','admin'].includes(data.role)){
+  await client.auth.signOut();clearAuthUI();notify('Accès refusé : ce compte ne dispose pas du rôle administrateur.',true);return
+ }
+ currentUser=user;$('identity').textContent=user.email;$('role').textContent=data.role==='super_admin'?'Super-administrateur':'Administrateur';
+ $('login').classList.add('hidden');$('dashboard').classList.remove('hidden');notify('Connexion autorisée.');await loadActivities()
+}
+async function loadActivities(){
+ $('activities').textContent='Chargement des activités…';
+ const {data,error}=await client.from('activities').select('*').order('event_date',{ascending:false});
+ if(error){$('activities').textContent='Erreur : '+errorText(error);notify('Lecture impossible : '+errorText(error),true);return}
+ items=data||[];$('activities').replaceChildren();
+ if(!items.length){$('activities').textContent='Aucune activité pour le moment.';return}
+ for(const item of items){
+  const card=document.createElement('article');card.className='item';
+  const status=document.createElement('span');status.className='status';status.textContent=item.status||'—';
+  const title=document.createElement('h3');title.textContent=item.title_fr||item.slug;
+  const meta=document.createElement('p');meta.textContent=[item.speaker_name, item.event_date?new Date(item.event_date).toLocaleString('fr-FR',{timeZone:'Africa/Kinshasa',dateStyle:'medium',timeStyle:'short'}):''].filter(Boolean).join(' · ');
+  const actions=document.createElement('div');actions.className='actions';
+  const edit=document.createElement('button');edit.textContent='Modifier';edit.className='secondary';edit.onclick=()=>openEditor(item);
+  const del=document.createElement('button');del.textContent='Supprimer';del.className='danger';del.onclick=()=>removeActivity(item);
+  actions.append(edit,del);card.append(status,title,meta,actions);$('activities').append(card)
+ }
+}
+function openEditor(item=null){
+ editingId=item?.id||null;$('activityForm').reset();
+ for(const key of ['slug','status','title_fr','title_en','description_fr','description_en','speaker_name','speaker_role','meeting_url']){
+  if(item && $(key))$(key).value=item[key]|| (key==='status'?'draft':'')
+ }
+ $('event_date').value=localKinshasa(item?.event_date);$('end_date').value=localKinshasa(item?.end_date);
+ $('editorTitle').textContent=item?'Modifier une activité':'Nouvelle activité';$('editor').classList.remove('hidden');$('editor').scrollIntoView({behavior:'smooth',block:'start'})
+}
+async function removeActivity(item){
+ if(!confirm('Supprimer définitivement « '+(item.title_fr||item.slug)+' » ? Cette action est irréversible.'))return;
+ const {error}=await client.from('activities').delete().eq('id',item.id);
+ if(error){notify('Suppression refusée : '+errorText(error),true);return}
+ notify('Activité supprimée.');await loadActivities()
+}
+$('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();setBusy('loginBtn',true);notify('Connexion en cours…');
+ const {error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+ $('password').value='';setBusy('loginBtn',false);
+ if(error){notify('Connexion impossible : '+errorText(error),true);return}
+ await verify()
+});
+$('logout').onclick=async()=>{await client.auth.signOut();clearAuthUI();notify('Déconnexion effectuée.')};
+$('newBtn').onclick=()=>openEditor();$('cancelBtn').onclick=()=>$('editor').classList.add('hidden');
+$('activityForm').addEventListener('submit',async e=>{
+ e.preventDefault();setBusy('saveBtn',true);
+ const keys=['slug','status','title_fr','title_en','description_fr','description_en','speaker_name','speaker_role','meeting_url'];
+ const payload={};for(const k of keys)payload[k]=$(k).value.trim()||null;
+ payload.status=payload.status||'draft';payload.timezone='Africa/Kinshasa';
+ payload.event_date=toUTC($('event_date').value);payload.end_date=toUTC($('end_date').value);
+ if(payload.end_date&&new Date(payload.end_date)<new Date(payload.event_date)){notify('La fin ne peut pas précéder le début.',true);setBusy('saveBtn',false);return}
+ if(payload.meeting_url&&!payload.meeting_url.startsWith('https://')){notify('Le lien de réunion doit commencer par https://',true);setBusy('saveBtn',false);return}
+ const result=editingId?await client.from('activities').update(payload).eq('id',editingId).select('id'):await client.from('activities').insert(payload).select('id');
+ setBusy('saveBtn',false);
+ if(result.error){notify('Enregistrement refusé : '+errorText(result.error),true);return}
+ if(!result.data?.length){notify('Aucune ligne modifiée : vérifiez les autorisations.',true);return}
+ notify('Activité enregistrée avec succès.');$('editor').classList.add('hidden');await loadActivities()
+});
+(async()=>{
+ if(!window.supabase?.createClient){notify('Bibliothèque de connexion indisponible. Vérifiez votre accès Internet.',true);return}
+ client=window.supabase.createClient(URL_SUPABASE,PUBLIC_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+ await verify()
+})().catch(e=>notify('Erreur de démarrage : '+errorText(e),true));
+</script></body></html>
