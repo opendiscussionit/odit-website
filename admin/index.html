@@ -18,7 +18,7 @@
 <div class="full"><label for="description_fr">Description française</label><textarea id="description_fr"></textarea></div><div class="full"><label for="description_en">Description anglaise</label><textarea id="description_en"></textarea></div>
 <div><label for="speaker_name">Intervenant</label><input id="speaker_name"></div><div><label for="speaker_role">Fonction de l'intervenant</label><input id="speaker_role"></div>
 <div><label for="event_date">Début (heure de Kinshasa) *</label><input id="event_date" type="datetime-local" required></div><div><label for="end_date">Fin (heure de Kinshasa)</label><input id="end_date" type="datetime-local"></div>
-<div class="full"><label for="meeting_url">Lien de réunion HTTPS</label><input id="meeting_url" type="url" placeholder="https://..."></div>
+<div class="full"><label for="meeting_url">Lien de réunion HTTPS</label><input id="meeting_url" type="url" placeholder="https://..."></div><div class="full"><h2>Après la session — archives et enregistrement</h2><p class="hint">Ces informations seront affichées dans « Nos anciennes sessions » après la date de fin, si l'activité reste publiée.</p></div><div class="full"><label for="summary_fr">Résumé de la session (français)</label><textarea id="summary_fr" rows="5" placeholder="Points abordés, enseignements, recommandations..."></textarea></div><div class="full"><label for="summary_en">Session summary (English)</label><textarea id="summary_en" rows="4"></textarea></div><div class="full"><label for="recording_url">Lien HTTPS de l'enregistrement</label><input id="recording_url" type="url" placeholder="https://youtube.com/..."></div><div class="full"><label style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="recording_published" style="width:auto"> Publier le lien de l'enregistrement sur le site</label></div>
 </div><p class="hint">Les dates sont saisies en heure de Kinshasa (UTC+1). Le statut « Brouillon » reste invisible sur le site public.</p><button id="saveBtn" type="submit">Enregistrer l'activité</button></form></section></section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -55,18 +55,18 @@ async function loadActivities(){
   const status=document.createElement('span');status.className='status';status.textContent=item.status||'—';
   const title=document.createElement('h3');title.textContent=item.title_fr||item.slug;
   const meta=document.createElement('p');meta.textContent=[item.speaker_name, item.event_date?new Date(item.event_date).toLocaleString('fr-FR',{timeZone:'Africa/Kinshasa',dateStyle:'medium',timeStyle:'short'}):''].filter(Boolean).join(' · ');
-  const actions=document.createElement('div');actions.className='actions';
+  const archive=document.createElement('p');archive.className='hint';archive.textContent=item.end_date&&Date.parse(item.end_date)<Date.now()?'Session terminée · '+(item.recording_published?'Enregistrement publié':'Enregistrement non publié'):'Session à venir / en cours';const actions=document.createElement('div');actions.className='actions';
   const edit=document.createElement('button');edit.textContent='Modifier';edit.className='secondary';edit.onclick=()=>openEditor(item);
   const del=document.createElement('button');del.textContent='Supprimer';del.className='danger';del.onclick=()=>removeActivity(item);
-  actions.append(edit,del);card.append(status,title,meta,actions);$('activities').append(card)
+  actions.append(edit,del);card.append(status,title,meta,archive,actions);$('activities').append(card)
  }
 }
 function openEditor(item=null){
  editingId=item?.id||null;$('activityForm').reset();
- for(const key of ['slug','status','title_fr','title_en','description_fr','description_en','speaker_name','speaker_role','meeting_url']){
+ for(const key of ['slug','status','title_fr','title_en','description_fr','description_en','speaker_name','speaker_role','meeting_url','summary_fr','summary_en','recording_url']){
   if(item && $(key))$(key).value=item[key]|| (key==='status'?'draft':'')
  }
- $('event_date').value=localKinshasa(item?.event_date);$('end_date').value=localKinshasa(item?.end_date);
+ $('recording_published').checked=Boolean(item?.recording_published);$('event_date').value=localKinshasa(item?.event_date);$('end_date').value=localKinshasa(item?.end_date);
  $('editorTitle').textContent=item?'Modifier une activité':'Nouvelle activité';$('editor').classList.remove('hidden');$('editor').scrollIntoView({behavior:'smooth',block:'start'})
 }
 async function removeActivity(item){
@@ -86,9 +86,9 @@ $('logout').onclick=async()=>{await client.auth.signOut();clearAuthUI();notify('
 $('newBtn').onclick=()=>openEditor();$('cancelBtn').onclick=()=>$('editor').classList.add('hidden');
 $('activityForm').addEventListener('submit',async e=>{
  e.preventDefault();setBusy('saveBtn',true);
- const keys=['slug','status','title_fr','title_en','description_fr','description_en','speaker_name','speaker_role','meeting_url'];
+ const keys=['slug','status','title_fr','title_en','description_fr','description_en','speaker_name','speaker_role','meeting_url','summary_fr','summary_en','recording_url'];
  const payload={};for(const k of keys)payload[k]=$(k).value.trim()||null;
- payload.status=payload.status||'draft';payload.timezone='Africa/Kinshasa';
+ payload.recording_published=$('recording_published').checked;if(payload.recording_published&&!payload.recording_url){notify('Ajoutez un lien avant de publier l’enregistrement.',true);setBusy('saveBtn',false);return}if(payload.recording_url&&!payload.recording_url.startsWith('https://')){notify('Le lien de l’enregistrement doit commencer par https://',true);setBusy('saveBtn',false);return}payload.status=payload.status||'draft';payload.timezone='Africa/Kinshasa';
  payload.event_date=toUTC($('event_date').value);payload.end_date=toUTC($('end_date').value);
  if(payload.end_date&&new Date(payload.end_date)<new Date(payload.event_date)){notify('La fin ne peut pas précéder le début.',true);setBusy('saveBtn',false);return}
  if(payload.meeting_url&&!payload.meeting_url.startsWith('https://')){notify('Le lien de réunion doit commencer par https://',true);setBusy('saveBtn',false);return}
