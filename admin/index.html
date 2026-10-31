@@ -9,6 +9,7 @@
 <div id="notice" role="status" aria-live="polite"></div>
 <section class="panel" id="login"><h2>Connexion administrateur</h2><form id="loginForm" style="max-width:440px"><div style="margin:15px 0"><label for="email">Adresse e-mail</label><input id="email" type="email" autocomplete="username" required></div><div style="margin:15px 0"><label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password" required></div><button id="loginBtn" type="submit">Se connecter</button></form><p class="hint">Les inscriptions publiques sont désactivées. Utilisez le compte créé dans Supabase Authentication.</p></section>
 <section id="dashboard" class="hidden"><div class="panel toolbar"><div><strong id="identity"></strong><br><small id="role"></small></div><button id="logout" class="secondary">Se déconnecter</button></div>
+<section class="panel hidden" id="communityPanel"><h2>Paramètres ODIT — Communauté</h2><p class="hint">Réservé au super-administrateur. Les changements seront visibles sur le site public après son intégration à cette table.</p><form id="communityForm"><div class="grid"><div class="full"><label for="communityWhatsapp">Lien d’invitation WhatsApp</label><input id="communityWhatsapp" type="url" placeholder="https://chat.whatsapp.com/..." required></div><div class="full"><label for="communityFacebook">Lien de la page Facebook</label><input id="communityFacebook" type="url" placeholder="https://www.facebook.com/..." required></div><div><label for="communityMembers">Nombre minimum de membres WhatsApp</label><input id="communityMembers" type="number" min="0" step="1" required></div><div><label>Dernière actualisation du compteur</label><p id="communityUpdated" class="hint">—</p></div></div><p class="hint">Saisir un chiffre vérifié. Le compteur ne mesure pas les membres connectés en temps réel.</p><button id="communitySave" type="submit">Enregistrer les paramètres</button></form></section>
 <section class="panel"><div class="toolbar"><h2>Activités</h2><button id="newBtn">+ Nouvelle activité</button></div><div id="activities">Chargement…</div></section>
 <section class="panel hidden" id="editor"><div class="toolbar"><h2 id="editorTitle">Nouvelle activité</h2><button type="button" class="secondary" id="cancelBtn">Fermer</button></div>
 <form id="activityForm"><div class="grid">
@@ -27,13 +28,13 @@
 const URL_SUPABASE='https://rniaixhxbfiznhrnxvvn.supabase.co';
 const PUBLIC_KEY='sb_publishable_bS_yjMA0eCPk2SF5IQHTZA_3H2OxLRT';
 const $=id=>document.getElementById(id);
-let client, currentUser=null, editingId=null, items=[];
+let client, currentUser=null, editingId=null, items=[], currentRole=null;
 function notify(message,isError=false){$('notice').textContent=message;$('notice').className=isError?'error':'success'}
 function errorText(e){return e?.message||'Erreur inconnue'}
 function localKinshasa(iso){if(!iso)return '';const d=new Date(new Date(iso).getTime()+3600000);return d.toISOString().slice(0,16)}
 function toUTC(value){return value?new Date(value+':00+01:00').toISOString():null}
 function setBusy(id,b){$(id).disabled=b}
-function clearAuthUI(){$('login').classList.remove('hidden');$('dashboard').classList.add('hidden');currentUser=null}
+function clearAuthUI(){$('login').classList.remove('hidden');$('dashboard').classList.add('hidden');currentUser=null;currentRole=null;$('communityPanel').classList.add('hidden')}
 async function verify(){
  const {data:{user},error}=await client.auth.getUser();
  if(error||!user){clearAuthUI();return}
@@ -41,9 +42,29 @@ async function verify(){
  if(roleError||!data||!['super_admin','admin'].includes(data.role)){
   await client.auth.signOut();clearAuthUI();notify('Accès refusé : ce compte ne dispose pas du rôle administrateur.',true);return
  }
- currentUser=user;$('identity').textContent=user.email;$('role').textContent=data.role==='super_admin'?'Super-administrateur':'Administrateur';
+ currentUser=user;currentRole=data.role;$('communityPanel').classList.toggle('hidden',currentRole!=='super_admin');if(currentRole==='super_admin')await loadCommunity();$('identity').textContent=user.email;$('role').textContent=data.role==='super_admin'?'Super-administrateur':'Administrateur';
  $('login').classList.add('hidden');$('dashboard').classList.remove('hidden');notify('Connexion autorisée.');await loadActivities()
 }
+async function loadCommunity(){
+ const {data,error}=await client.from('community_settings').select('whatsapp_url,facebook_url,whatsapp_members_min,members_updated_at').eq('id',1).maybeSingle();
+ if(error){notify('Paramètres communautaires : '+errorText(error),true);return}
+ if(!data){notify('La ligne de paramètres ODIT est introuvable.',true);return}
+ $('communityWhatsapp').value=data.whatsapp_url||'';$('communityFacebook').value=data.facebook_url||'';$('communityMembers').value=data.whatsapp_members_min??0;
+ $('communityUpdated').textContent=data.members_updated_at?new Date(data.members_updated_at).toLocaleString('fr-FR',{timeZone:'Africa/Kinshasa',dateStyle:'medium',timeStyle:'short'})+' (Kinshasa)':'Non renseignée';
+}
+$('communityForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(currentRole!=='super_admin'){notify('Accès réservé au super-administrateur.',true);return}
+ const whatsapp_url=$('communityWhatsapp').value.trim(),facebook_url=$('communityFacebook').value.trim(),whatsapp_members_min=Number($('communityMembers').value);
+ if(!/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+\/?$/.test(whatsapp_url)){notify('Lien WhatsApp invalide.',true);return}
+ if(!/^https:\/\/(www\.)?facebook\.com\//.test(facebook_url)){notify('Lien Facebook invalide.',true);return}
+ if(!Number.isSafeInteger(whatsapp_members_min)||whatsapp_members_min<0){notify('Nombre de membres invalide.',true);return}
+ setBusy('communitySave',true);
+ const {data,error}=await client.from('community_settings').update({whatsapp_url,facebook_url,whatsapp_members_min,members_updated_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',1).select('id');
+ setBusy('communitySave',false);
+ if(error){notify('Enregistrement impossible : '+errorText(error),true);return}
+ if(!data?.length){notify('Aucune modification autorisée : vérifiez les politiques Supabase.',true);return}
+ notify('Paramètres ODIT enregistrés.');await loadCommunity();
+});
 async function loadActivities(){
  $('activities').textContent='Chargement des activités…';
  const {data,error}=await client.from('activities').select('*').order('event_date',{ascending:false});
