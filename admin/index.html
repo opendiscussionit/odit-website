@@ -3,7 +3,7 @@
 <title>Administration | ODIT</title>
 <style>
 :root{font-family:Inter,system-ui,Arial,sans-serif;color:#e9fff3;background:#061b15}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#155c42,#061b15 55%);min-height:100vh}header{padding:20px max(20px,calc((100vw - 1080px)/2));display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff25}header strong{font-size:25px}header strong span{color:#45e09b}main{max-width:1080px;margin:40px auto;padding:0 20px 80px}.panel{background:#ffffff0a;border:1px solid #ffffff26;border-radius:18px;padding:26px;margin:20px 0}h1{font-size:clamp(28px,5vw,43px);margin:0 0 8px}h2{margin:0 0 16px;font-size:20px}p,.hint{color:#b9d6c9;line-height:1.5}label{display:block;font-size:13px;color:#c9e9da;margin-bottom:6px;font-weight:650}input,textarea,select{display:block;width:100%;padding:12px 13px;border-radius:9px;background:#0d2c23;border:1px solid #ffffff45;color:#f1fff8;font:inherit}textarea{min-height:94px;resize:vertical}input:focus,textarea:focus,select:focus{outline:2px solid #43db94}button,.button{background:#42db94;color:#073526;border:0;border-radius:9px;padding:12px 17px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}button:hover{filter:brightness(1.09)}button:disabled{opacity:.5;cursor:wait}.secondary{background:#244c3e;color:#effff5}.danger{background:#8c3039;color:white}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.full{grid-column:1/-1}.item{border:1px solid #ffffff26;padding:18px;border-radius:12px;margin:12px 0;background:#ffffff08}.item h3{margin:4px 0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.status{display:inline-block;padding:4px 9px;background:#154b37;border-radius:20px;font-size:12px;color:#b8ffdc}.error{color:#ffb7b7}.success{color:#8affbf}.hidden{display:none!important}#notice{min-height:24px;margin:12px 0}small{color:#b9d6c9}@media(max-width:650px){.grid{grid-template-columns:1fr}.panel{padding:18px}header{padding:18px 20px}}
-.article-body{min-height:260px}.article-meta{font-size:.82rem;color:#b9d6c9}.article-list .item{margin-bottom:12px}#articleEditor{scroll-margin-top:20px}
+.image-upload{border:1px dashed #53c58e;border-radius:14px;padding:18px;background:#0c3427}.image-preview{display:block;max-width:100%;width:360px;aspect-ratio:1200/630;object-fit:contain;border-radius:10px;margin-top:12px;background:#051a13}.image-upload .actions{align-items:center}.image-upload input[type=file]{padding:10px}.article-body{min-height:260px}.article-meta{font-size:.82rem;color:#b9d6c9}.article-list .item{margin-bottom:12px}#articleEditor{scroll-margin-top:20px}
 </style></head>
 <body><header><strong>OD<span>IT</span> <small>Administration</small></strong><a href="../" style="color:#8ff2bc">← Site public</a></header>
 <main><h1>Tableau de bord ODIT</h1><p>Gestion sécurisée des activités · Accès réservé aux responsables autorisés</p>
@@ -23,7 +23,7 @@
 <div class="full"><label for="artExcerptEn">Résumé anglais (facultatif)</label><textarea id="artExcerptEn" rows="3"></textarea></div>
 <div class="full"><label for="artBodyFr">Article complet en français *</label><textarea class="article-body" id="artBodyFr" required placeholder="Rédigez le texte de l'article. Séparez les paragraphes par une ligne vide."></textarea></div>
 <div class="full"><label for="artBodyEn">Article complet en anglais (facultatif)</label><textarea class="article-body" id="artBodyEn"></textarea></div>
-<div class="full"><label for="artImage">URL HTTPS d'une image (facultatif)</label><input type="url" id="artImage" placeholder="https://..."></div>
+<div class="full image-upload"><label for="artImageFile">📷 Image de couverture de l’article</label><p class="hint">JPG, PNG ou WebP · 5 Mo maximum · préparation automatique au format 1200 × 630 (WebP). Une image par article, idéale pour le partage sur WhatsApp.</p><input type="file" id="artImageFile" accept="image/jpeg,image/png,image/webp"><div class="actions"><button type="button" id="artUploadImage">Téléverser l’image</button><span id="artUploadStatus" class="hint" role="status"></span></div><img id="artImagePreview" class="image-preview hidden" alt="Aperçu de l’image de couverture"><label for="artImage" style="margin-top:14px">URL HTTPS de l’image (remplie automatiquement après téléversement)</label><input type="url" id="artImage" placeholder="https://..." autocomplete="off"><p class="hint">Tu peux aussi conserver une URL HTTPS externe. Ne téléverse que des images dont ODIT détient les droits d’utilisation.</p></div>
 <div><label for="artSource">URL HTTPS de la source (obligatoire pour une actualité)</label><input type="url" id="artSource" placeholder="https://..."></div><div><label for="artSourceName">Nom de la source</label><input id="artSourceName"></div>
 </div><p class="hint">Le texte est conservé en texte brut pour la sécurité. Pour les actualités, rédigez une synthèse originale et citez la source. La publication sera visible publiquement une fois le site V7 déployé.</p>
 <div class="actions"><button type="submit" id="artDraftBtn" data-status="draft">Enregistrer en brouillon</button><button type="submit" id="artPublishBtn" data-status="published">Publier</button><button type="button" id="artArchiveBtn" class="secondary hidden">Archiver</button></div></form></section>
@@ -141,9 +141,9 @@ $('activityForm').addEventListener('submit',async e=>{
 let articleEditingId=null, articleItems=[], articleSaveStatus='draft';
 const ARTICLE_FIELDS={slug:'artSlug',content_type:'artType',category:'artCategory',author_name:'artAuthor',title_fr:'artTitleFr',title_en:'artTitleEn',excerpt_fr:'artExcerptFr',excerpt_en:'artExcerptEn',body_fr:'artBodyFr',body_en:'artBodyEn',image_url:'artImage',source_url:'artSource',source_name:'artSourceName'};
 function openArticleEditor(article=null){
- articleEditingId=article?.id||null;$('articleForm').reset();
+ articleEditingId=article?.id||null;$('articleForm').reset();$('artUploadStatus').textContent='';$('artImagePreview').classList.add('hidden');
  for(const [field,id] of Object.entries(ARTICLE_FIELDS))$(id).value=article?.[field]??(field==='content_type'?'article':field==='category'?'general':'');
- if(!article&&currentUser)$('artAuthor').value=currentUser.user_metadata?.full_name||currentUser.email?.split('@')[0]||'';
+ updateArticleImagePreview();if(!article&&currentUser)$('artAuthor').value=currentUser.user_metadata?.full_name||currentUser.email?.split('@')[0]||'';
  $('articleEditorTitle').textContent=article?'Modifier : '+article.title_fr:'Nouvel article';
  $('artArchiveBtn').classList.toggle('hidden',!article||article.status==='archived');
  $('articleEditor').classList.remove('hidden');$('articleEditor').scrollIntoView({behavior:'smooth',block:'start'});
@@ -171,6 +171,50 @@ async function deleteArticle(a){
  if(error||!data?.length){notify('Suppression impossible : '+(error?errorText(error):'autorisation refusée'),true);return}
  notify('Article supprimé.');await loadArticles()
 }
+// Téléversement sécurisé des couvertures dans Supabase Storage.
+function updateArticleImagePreview(){
+ const url=$('artImage').value.trim(),img=$('artImagePreview');
+ if(/^https:\/\//i.test(url)){img.src=url;img.classList.remove('hidden')}else{img.removeAttribute('src');img.classList.add('hidden')}
+}
+$('artImage').addEventListener('change',updateArticleImagePreview);
+$('artImagePreview').addEventListener('error',()=>{$('artImagePreview').classList.add('hidden')});
+async function prepareCover(file){
+ const types=['image/jpeg','image/png','image/webp'];
+ if(!types.includes(file.type))throw Error('Format non accepté : utilisez JPG, PNG ou WebP.');
+ if(file.size>5*1024*1024)throw Error('Image trop volumineuse : maximum 5 Mo.');
+ const bitmap=await createImageBitmap(file);
+ try{
+  const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=630;
+  const ctx=canvas.getContext('2d');if(!ctx)throw Error('Compression non disponible sur ce navigateur.');
+  ctx.fillStyle='#082a20';ctx.fillRect(0,0,1200,630);
+  const scale=Math.min(1200/bitmap.width,630/bitmap.height),w=bitmap.width*scale,h=bitmap.height*scale;
+  ctx.drawImage(bitmap,(1200-w)/2,(630-h)/2,w,h);
+  for(const quality of [.84,.72,.6,.48]){
+   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',quality));
+   if(!blob)throw Error('Impossible de préparer le fichier WebP.');
+   if(blob.size<=300*1024||quality===.48)return blob;
+  }
+ }finally{bitmap.close()}
+}
+$('artUploadImage').addEventListener('click',async()=>{
+ const file=$('artImageFile').files?.[0];if(!file){notify('Sélectionne d’abord une image.',true);return}
+ if(!currentUser){notify('Connecte-toi pour téléverser une image.',true);return}
+ const button=$('artUploadImage');button.disabled=true;$('artUploadStatus').textContent='Préparation de l’image…';
+ try{
+  const blob=await prepareCover(file);
+  const name=crypto.randomUUID()+'.webp';
+  const path=currentUser.id+'/'+name;
+  $('artUploadStatus').textContent='Téléversement sécurisé en cours…';
+  const {error}=await client.storage.from('article-images').upload(path,blob,{contentType:'image/webp',cacheControl:'3600',upsert:false});
+  if(error)throw error;
+  const {data}=client.storage.from('article-images').getPublicUrl(path);
+  if(!data?.publicUrl?.startsWith('https://'))throw Error('URL publique indisponible.');
+  $('artImage').value=data.publicUrl;updateArticleImagePreview();
+  $('artUploadStatus').textContent='✓ Image téléversée ('+Math.round(blob.size/1024)+' Ko). Enregistre ensuite l’article.';
+  notify('Image prête. Enregistre ou publie maintenant l’article.');
+ }catch(err){$('artUploadStatus').textContent='Échec du téléversement.';notify('Image : '+errorText(err),true)}
+ finally{button.disabled=false}
+});
 $('newArticleBtn').onclick=()=>openArticleEditor();
 $('closeArticleBtn').onclick=()=>$('articleEditor').classList.add('hidden');
 $('artDraftBtn').addEventListener('click',()=>articleSaveStatus='draft');
