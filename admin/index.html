@@ -4,6 +4,8 @@
 <style>
 :root{font-family:Inter,system-ui,Arial,sans-serif;color:#e9fff3;background:#061b15}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#155c42,#061b15 55%);min-height:100vh}header{padding:20px max(20px,calc((100vw - 1080px)/2));display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff25}header strong{font-size:25px}header strong span{color:#45e09b}main{max-width:1080px;margin:40px auto;padding:0 20px 80px}.panel{background:#ffffff0a;border:1px solid #ffffff26;border-radius:18px;padding:26px;margin:20px 0}h1{font-size:clamp(28px,5vw,43px);margin:0 0 8px}h2{margin:0 0 16px;font-size:20px}p,.hint{color:#b9d6c9;line-height:1.5}label{display:block;font-size:13px;color:#c9e9da;margin-bottom:6px;font-weight:650}input,textarea,select{display:block;width:100%;padding:12px 13px;border-radius:9px;background:#0d2c23;border:1px solid #ffffff45;color:#f1fff8;font:inherit}textarea{min-height:94px;resize:vertical}input:focus,textarea:focus,select:focus{outline:2px solid #43db94}button,.button{background:#42db94;color:#073526;border:0;border-radius:9px;padding:12px 17px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}button:hover{filter:brightness(1.09)}button:disabled{opacity:.5;cursor:wait}.secondary{background:#244c3e;color:#effff5}.danger{background:#8c3039;color:white}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.full{grid-column:1/-1}.item{border:1px solid #ffffff26;padding:18px;border-radius:12px;margin:12px 0;background:#ffffff08}.item h3{margin:4px 0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.status{display:inline-block;padding:4px 9px;background:#154b37;border-radius:20px;font-size:12px;color:#b8ffdc}.error{color:#ffb7b7}.success{color:#8affbf}.hidden{display:none!important}#notice{min-height:24px;margin:12px 0}small{color:#b9d6c9}@media(max-width:650px){.grid{grid-template-columns:1fr}.panel{padding:18px}header{padding:18px 20px}}
 .image-upload{border:1px dashed #53c58e;border-radius:14px;padding:18px;background:#0c3427}.image-preview{display:block;max-width:100%;width:360px;aspect-ratio:1200/630;object-fit:contain;border-radius:10px;margin-top:12px;background:#051a13}.image-upload .actions{align-items:center}.image-upload input[type=file]{padding:10px}.article-body{min-height:260px}.article-meta{font-size:.82rem;color:#b9d6c9}.article-list .item{margin-bottom:12px}#articleEditor{scroll-margin-top:20px}
+
+.rich-tools{display:flex;gap:8px;flex-wrap:wrap;margin:9px 0}.rich-tools button{padding:9px 12px;background:#1a6045;color:#eafff3;border:1px solid #62c99a}.rich-preview{border:1px solid #ffffff40;background:#09281f;border-radius:12px;padding:22px;margin:12px 0;line-height:1.75;overflow-wrap:anywhere}.rich-preview h2,.rich-preview h3{color:#7cf0b5}.rich-preview img{display:block;max-width:100%;height:auto;border-radius:12px;margin:18px auto 6px}.rich-preview figure{margin:20px 0;text-align:center}.rich-preview figcaption{font-size:.85rem;color:#b9d6c9}.rich-preview pre{overflow:auto;background:#031710;padding:15px;border-radius:9px}.rich-preview code{background:#1b4a38;padding:2px 5px}.rich-preview a{color:#8aefbd}.rich-preview blockquote{border-left:3px solid #45e09b;padding-left:15px;color:#b9d6c9}.rich-preview .empty{color:#b9d6c9}.rich-img-controls{border:1px dashed #62c99a;padding:16px;border-radius:12px;background:#0b3024;margin:10px 0}.rich-img-controls input{margin:8px 0}.rich-img-controls button{margin:7px 0}.rich-hint{font-size:.84rem;color:#b9d6c9}
 </style></head>
 <body><header><strong>OD<span>IT</span> <small>Administration</small></strong><a href="../" style="color:#8ff2bc">← Site public</a></header>
 <main><h1>Tableau de bord ODIT</h1><p>Gestion sécurisée des activités · Accès réservé aux responsables autorisés</p>
@@ -21,11 +23,11 @@
 <div><label for="artTitleFr">Titre français *</label><input id="artTitleFr" required></div><div><label for="artTitleEn">Titre anglais (facultatif)</label><input id="artTitleEn"></div>
 <div class="full"><label for="artExcerptFr">Résumé français (2 à 4 phrases)</label><textarea id="artExcerptFr" rows="3"></textarea></div>
 <div class="full"><label for="artExcerptEn">Résumé anglais (facultatif)</label><textarea id="artExcerptEn" rows="3"></textarea></div>
-<div class="full"><label for="artBodyFr">Article complet en français *</label><textarea class="article-body" id="artBodyFr" required placeholder="Rédigez le texte de l'article. Séparez les paragraphes par une ligne vide."></textarea></div>
-<div class="full"><label for="artBodyEn">Article complet en anglais (facultatif)</label><textarea class="article-body" id="artBodyEn"></textarea></div>
+<div class="full"><div class="rich-img-controls"><strong>✍️ Éditeur d'article illustré</strong><p class="rich-hint">Place le curseur dans le texte français ou anglais, puis utilise les boutons ci-dessous. L'image sera insérée à cet emplacement et apparaîtra dans l'aperçu.</p><div class="rich-tools"><button type="button" data-format="h2">Titre H2</button><button type="button" data-format="h3">Sous-titre H3</button><button type="button" data-format="bold">Gras</button><button type="button" data-format="list">Liste</button><button type="button" data-format="code">Code</button><button type="button" id="previewArticleBtn">Actualiser l'aperçu</button></div><label for="inlineImageFile">🖼️ Image à insérer dans le texte</label><input id="inlineImageFile" type="file" accept="image/jpeg,image/png,image/webp"><label for="inlineImageCaption">Légende de l'image</label><input id="inlineImageCaption" placeholder="Figure 1 — Architecture VXLAN"><button type="button" id="insertInlineImage">Téléverser et insérer au curseur</button><span id="inlineImageStatus" role="status" class="hint"></span></div></div><div class="full"><label for="artBodyFr">Article complet en français *</label><textarea class="article-body" id="artBodyFr" required placeholder="Rédigez le texte de l'article. Séparez les paragraphes par une ligne vide."></textarea></div>
+<div class="full"><label for="artBodyEn">Article complet en anglais (facultatif)</label><textarea class="article-body" id="artBodyEn"></textarea></div><div class="full"><label for="articlePreview">Aperçu du contenu français (images comprises)</label><div id="articlePreview" class="rich-preview" aria-live="polite"></div></div>
 <div class="full image-upload"><label for="artImageFile">📷 Image de couverture de l’article</label><p class="hint">JPG, PNG ou WebP · 5 Mo maximum · préparation automatique au format 1200 × 630 (WebP). Une image par article, idéale pour le partage sur WhatsApp.</p><input type="file" id="artImageFile" accept="image/jpeg,image/png,image/webp"><div class="actions"><button type="button" id="artUploadImage">Téléverser l’image</button><span id="artUploadStatus" class="hint" role="status"></span></div><img id="artImagePreview" class="image-preview hidden" alt="Aperçu de l’image de couverture"><label for="artImage" style="margin-top:14px">URL HTTPS de l’image (remplie automatiquement après téléversement)</label><input type="url" id="artImage" placeholder="https://..." autocomplete="off"><p class="hint">Tu peux aussi conserver une URL HTTPS externe. Ne téléverse que des images dont ODIT détient les droits d’utilisation.</p></div>
 <div><label for="artSource">URL HTTPS de la source (obligatoire pour une actualité)</label><input type="url" id="artSource" placeholder="https://..."></div><div><label for="artSourceName">Nom de la source</label><input id="artSourceName"></div>
-</div><p class="hint">Le texte est conservé en texte brut pour la sécurité. Pour les actualités, rédigez une synthèse originale et citez la source. La publication sera visible publiquement une fois le site V7 déployé.</p>
+</div><p class="hint">Le texte est conservé avec un balisage limité (titres, images, listes, code) et affiché de façon sécurisée. Pour les actualités, rédigez une synthèse originale et citez la source. La publication sera visible publiquement une fois le site V7 déployé.</p>
 <div class="actions"><button type="submit" id="artDraftBtn" data-status="draft">Enregistrer en brouillon</button><button type="submit" id="artPublishBtn" data-status="published">Publier</button><button type="button" id="artArchiveBtn" class="secondary hidden">Archiver</button></div></form></section>
 <section class="panel"><div class="toolbar"><h2>Activités</h2><button id="newBtn">+ Nouvelle activité</button></div><div id="activities">Chargement…</div></section>
 <section class="panel hidden" id="editor"><div class="toolbar"><h2 id="editorTitle">Nouvelle activité</h2><button type="button" class="secondary" id="cancelBtn">Fermer</button></div>
@@ -215,6 +217,60 @@ $('artUploadImage').addEventListener('click',async()=>{
  }catch(err){$('artUploadStatus').textContent='Échec du téléversement.';notify('Image : '+errorText(err),true)}
  finally{button.disabled=false}
 });
+
+// ODIT V8.1 : éditeur assisté avec images intégrées et aperçu sécurisé.
+let lastBodyEditor='artBodyFr',lastBodyCursor=0;
+for(const id of ['artBodyFr','artBodyEn']){
+ const area=$(id);area.addEventListener('click',()=>{lastBodyEditor=id;lastBodyCursor=area.selectionStart});
+ area.addEventListener('keyup',()=>{lastBodyEditor=id;lastBodyCursor=area.selectionStart});
+ area.addEventListener('input',()=>{lastBodyEditor=id;lastBodyCursor=area.selectionStart;renderInlinePreview()});
+}
+function insertAtCursor(str){const a=$(lastBodyEditor);const at=Math.min(lastBodyCursor,a.value.length);a.setRangeText(str,at,at,'end');lastBodyCursor=a.selectionStart;a.focus();renderInlinePreview()}
+function addFormat(kind){const a=$(lastBodyEditor);const start=a.selectionStart,end=a.selectionEnd;const selected=a.value.slice(start,end);let output='';
+ if(kind==='h2')output='\n## '+(selected||'Titre de section')+'\n';
+ if(kind==='h3')output='\n### '+(selected||'Sous-titre')+'\n';
+ if(kind==='bold')output='**'+(selected||'texte important')+'**';
+ if(kind==='list')output='\n- '+(selected||'Premier élément')+'\n';
+ if(kind==='code')output='\n```\n'+(selected||'commande ou configuration')+'\n```\n';
+ a.setRangeText(output,start,end,'end');lastBodyCursor=a.selectionStart;a.focus();renderInlinePreview();
+}
+for(const b of document.querySelectorAll('[data-format]'))b.addEventListener('click',()=>addFormat(b.dataset.format));
+function renderInlinePreview(){const root=$('articlePreview');if(!root)return;root.replaceChildren();const src=$('artBodyFr').value;if(!src.trim()){root.append(el('p','empty','L’aperçu apparaîtra ici pendant la rédaction.'));return}
+ const lines=src.split(/\r?\n/);let inCode=false,pre=null,list=null;
+ for(const line of lines){if(line.trim()==='```'){inCode=!inCode;if(inCode){pre=el('pre');pre.append(el('code'));root.append(pre)}else pre=null;continue}
+ if(inCode){pre.firstChild.textContent+=line+'\n';continue}
+ const img=line.match(/^!\[([^\]]{0,300})\]\((https:\/\/[^\s)]+)\)\s*$/);
+ if(img){const fig=el('figure');const image=el('img');image.src=img[2];image.alt=img[1]||'Illustration de l’article';image.loading='lazy';fig.append(image);if(img[1])fig.append(el('figcaption','',img[1]));root.append(fig);list=null;continue}
+ if(!line.trim()){list=null;continue}
+ if(line.startsWith('### ')){root.append(el('h3','',line.slice(4)));list=null;continue}
+ if(line.startsWith('## ')){root.append(el('h2','',line.slice(3)));list=null;continue}
+ if(line.startsWith('- ')){if(!list){list=el('ul');root.append(list)}list.append(el('li','',line.slice(2)));continue}
+ if(line.startsWith('> ')){root.append(el('blockquote','',line.slice(2)));list=null;continue}
+ const para=el('p');const segments=line.split(/(\*\*[^*]+\*\*)/g);for(const seg of segments){if(seg.startsWith('**')&&seg.endsWith('**'))para.append(el('strong','',seg.slice(2,-2)));else para.append(document.createTextNode(seg))}root.append(para);list=null;
+ }
+}
+$('previewArticleBtn').onclick=renderInlinePreview;
+$('insertInlineImage').onclick=async()=>{
+ const file=$('inlineImageFile').files?.[0],btn=$('insertInlineImage'),status=$('inlineImageStatus');
+ if(!file){notify('Sélectionne une image à insérer.',true);return}
+ if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024){notify('Image JPG, PNG ou WebP, maximum 5 Mo.',true);return}
+ btn.disabled=true;status.textContent='Compression et téléversement en cours…';
+ try{
+  if(!currentUser)throw Error('Connexion administrateur requise.');
+  const blob=await prepareCover(file); // compression WebP; format de couverture pour cette première version
+  const path='inline/'+currentUser.id+'/'+crypto.randomUUID()+'.webp';
+  const {error}=await client.storage.from('article-images').upload(path,blob,{contentType:'image/webp',upsert:false});
+  if(error)throw error;
+  const {data}=client.storage.from('article-images').getPublicUrl(path);
+  if(!data?.publicUrl?.startsWith('https://'))throw Error('URL de l’image indisponible.');
+  const caption=($('inlineImageCaption').value||'Illustration ODIT').replace(/[\]\n\r]/g,' ').slice(0,200);
+  insertAtCursor('\n!['+caption+']('+data.publicUrl+')\n');
+  status.textContent='✓ Image insérée. Enregistre ensuite l’article.';$('inlineImageFile').value='';$('inlineImageCaption').value='';
+ }catch(e){status.textContent='Échec : '+errorText(e);notify('Image intégrée : '+errorText(e),true)}finally{btn.disabled=false}
+};
+const originalOpenArticleEditor=openArticleEditor;
+openArticleEditor=function(article){originalOpenArticleEditor(article);lastBodyEditor='artBodyFr';lastBodyCursor=$('artBodyFr').value.length;renderInlinePreview();$('inlineImageStatus').textContent=''};
+
 $('newArticleBtn').onclick=()=>openArticleEditor();
 $('closeArticleBtn').onclick=()=>$('articleEditor').classList.add('hidden');
 $('artDraftBtn').addEventListener('click',()=>articleSaveStatus='draft');
