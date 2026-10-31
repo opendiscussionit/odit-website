@@ -3,6 +3,7 @@
 <title>Administration | ODIT</title>
 <style>
 :root{font-family:Inter,system-ui,Arial,sans-serif;color:#e9fff3;background:#061b15}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#155c42,#061b15 55%);min-height:100vh}header{padding:20px max(20px,calc((100vw - 1080px)/2));display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff25}header strong{font-size:25px}header strong span{color:#45e09b}main{max-width:1080px;margin:40px auto;padding:0 20px 80px}.panel{background:#ffffff0a;border:1px solid #ffffff26;border-radius:18px;padding:26px;margin:20px 0}h1{font-size:clamp(28px,5vw,43px);margin:0 0 8px}h2{margin:0 0 16px;font-size:20px}p,.hint{color:#b9d6c9;line-height:1.5}label{display:block;font-size:13px;color:#c9e9da;margin-bottom:6px;font-weight:650}input,textarea,select{display:block;width:100%;padding:12px 13px;border-radius:9px;background:#0d2c23;border:1px solid #ffffff45;color:#f1fff8;font:inherit}textarea{min-height:94px;resize:vertical}input:focus,textarea:focus,select:focus{outline:2px solid #43db94}button,.button{background:#42db94;color:#073526;border:0;border-radius:9px;padding:12px 17px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}button:hover{filter:brightness(1.09)}button:disabled{opacity:.5;cursor:wait}.secondary{background:#244c3e;color:#effff5}.danger{background:#8c3039;color:white}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.full{grid-column:1/-1}.item{border:1px solid #ffffff26;padding:18px;border-radius:12px;margin:12px 0;background:#ffffff08}.item h3{margin:4px 0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.status{display:inline-block;padding:4px 9px;background:#154b37;border-radius:20px;font-size:12px;color:#b8ffdc}.error{color:#ffb7b7}.success{color:#8affbf}.hidden{display:none!important}#notice{min-height:24px;margin:12px 0}small{color:#b9d6c9}@media(max-width:650px){.grid{grid-template-columns:1fr}.panel{padding:18px}header{padding:18px 20px}}
+.article-body{min-height:260px}.article-meta{font-size:.82rem;color:#b9d6c9}.article-list .item{margin-bottom:12px}#articleEditor{scroll-margin-top:20px}
 </style></head>
 <body><header><strong>OD<span>IT</span> <small>Administration</small></strong><a href="../" style="color:#8ff2bc">← Site public</a></header>
 <main><h1>Tableau de bord ODIT</h1><p>Gestion sécurisée des activités · Accès réservé aux responsables autorisés</p>
@@ -10,6 +11,22 @@
 <section class="panel" id="login"><h2>Connexion administrateur</h2><form id="loginForm" style="max-width:440px"><div style="margin:15px 0"><label for="email">Adresse e-mail</label><input id="email" type="email" autocomplete="username" required></div><div style="margin:15px 0"><label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password" required></div><button id="loginBtn" type="submit">Se connecter</button></form><p class="hint">Les inscriptions publiques sont désactivées. Utilisez le compte créé dans Supabase Authentication.</p></section>
 <section id="dashboard" class="hidden"><div class="panel toolbar"><div><strong id="identity"></strong><br><small id="role"></small></div><button id="logout" class="secondary">Se déconnecter</button></div>
 <section class="panel hidden" id="communityPanel"><h2>Paramètres ODIT — Communauté</h2><p class="hint">Réservé au super-administrateur. Les changements seront visibles sur le site public après son intégration à cette table.</p><form id="communityForm"><div class="grid"><div class="full"><label for="communityWhatsapp">Lien d’invitation WhatsApp</label><input id="communityWhatsapp" type="url" placeholder="https://chat.whatsapp.com/..." required></div><div class="full"><label for="communityFacebook">Lien de la page Facebook</label><input id="communityFacebook" type="url" placeholder="https://www.facebook.com/..." required></div><div><label for="communityMembers">Nombre minimum de membres WhatsApp</label><input id="communityMembers" type="number" min="0" step="1" required></div><div><label>Dernière actualisation du compteur</label><p id="communityUpdated" class="hint">—</p></div></div><p class="hint">Saisir un chiffre vérifié. Le compteur ne mesure pas les membres connectés en temps réel.</p><button id="communitySave" type="submit">Enregistrer les paramètres</button></form></section>
+<section class="panel" id="articlePanel"><div class="toolbar"><div><h2>Articles &amp; Actualités IT</h2><p class="hint">Tous les administrateurs peuvent rédiger et publier.</p></div><button type="button" id="newArticleBtn">+ Nouvel article</button></div><div id="articleList" class="article-list">Chargement…</div></section>
+<section class="panel hidden" id="articleEditor"><div class="toolbar"><h2 id="articleEditorTitle">Nouvel article</h2><button type="button" id="closeArticleBtn" class="secondary">Fermer</button></div>
+<form id="articleForm"><div class="grid">
+<div><label for="artSlug">Identifiant URL (slug) *</label><input id="artSlug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="comprendre-les-vlan"></div>
+<div><label for="artType">Type de publication *</label><select id="artType"><option value="article">Article ODIT</option><option value="actualite">Actualité IT</option></select></div>
+<div><label for="artCategory">Catégorie *</label><select id="artCategory"><option value="general">Général</option><option value="cybersecurite">Cybersécurité</option><option value="reseaux">Réseaux</option><option value="cloud">Cloud</option><option value="intelligence-artificielle">Intelligence artificielle</option><option value="developpement">Développement</option><option value="carriere-it">Carrière IT</option><option value="autre">Autre</option></select></div>
+<div><label for="artAuthor">Nom affiché de l'auteur *</label><input id="artAuthor" required maxlength="160"></div>
+<div><label for="artTitleFr">Titre français *</label><input id="artTitleFr" required></div><div><label for="artTitleEn">Titre anglais (facultatif)</label><input id="artTitleEn"></div>
+<div class="full"><label for="artExcerptFr">Résumé français (2 à 4 phrases)</label><textarea id="artExcerptFr" rows="3"></textarea></div>
+<div class="full"><label for="artExcerptEn">Résumé anglais (facultatif)</label><textarea id="artExcerptEn" rows="3"></textarea></div>
+<div class="full"><label for="artBodyFr">Article complet en français *</label><textarea class="article-body" id="artBodyFr" required placeholder="Rédigez le texte de l'article. Séparez les paragraphes par une ligne vide."></textarea></div>
+<div class="full"><label for="artBodyEn">Article complet en anglais (facultatif)</label><textarea class="article-body" id="artBodyEn"></textarea></div>
+<div class="full"><label for="artImage">URL HTTPS d'une image (facultatif)</label><input type="url" id="artImage" placeholder="https://..."></div>
+<div><label for="artSource">URL HTTPS de la source (obligatoire pour une actualité)</label><input type="url" id="artSource" placeholder="https://..."></div><div><label for="artSourceName">Nom de la source</label><input id="artSourceName"></div>
+</div><p class="hint">Le texte est conservé en texte brut pour la sécurité. Pour les actualités, rédigez une synthèse originale et citez la source. La publication sera visible publiquement une fois le site V7 déployé.</p>
+<div class="actions"><button type="submit" id="artDraftBtn" data-status="draft">Enregistrer en brouillon</button><button type="submit" id="artPublishBtn" data-status="published">Publier</button><button type="button" id="artArchiveBtn" class="secondary hidden">Archiver</button></div></form></section>
 <section class="panel"><div class="toolbar"><h2>Activités</h2><button id="newBtn">+ Nouvelle activité</button></div><div id="activities">Chargement…</div></section>
 <section class="panel hidden" id="editor"><div class="toolbar"><h2 id="editorTitle">Nouvelle activité</h2><button type="button" class="secondary" id="cancelBtn">Fermer</button></div>
 <form id="activityForm"><div class="grid">
@@ -34,7 +51,7 @@ function errorText(e){return e?.message||'Erreur inconnue'}
 function localKinshasa(iso){if(!iso)return '';const d=new Date(new Date(iso).getTime()+3600000);return d.toISOString().slice(0,16)}
 function toUTC(value){return value?new Date(value+':00+01:00').toISOString():null}
 function setBusy(id,b){$(id).disabled=b}
-function clearAuthUI(){$('login').classList.remove('hidden');$('dashboard').classList.add('hidden');currentUser=null;currentRole=null;$('communityPanel').classList.add('hidden')}
+function clearAuthUI(){$('login').classList.remove('hidden');$('dashboard').classList.add('hidden');currentUser=null;currentRole=null;articleEditingId=null;$('communityPanel').classList.add('hidden')}
 async function verify(){
  const {data:{user},error}=await client.auth.getUser();
  if(error||!user){clearAuthUI();return}
@@ -43,7 +60,7 @@ async function verify(){
   await client.auth.signOut();clearAuthUI();notify('Accès refusé : ce compte ne dispose pas du rôle administrateur.',true);return
  }
  currentUser=user;currentRole=data.role;$('communityPanel').classList.toggle('hidden',currentRole!=='super_admin');if(currentRole==='super_admin')await loadCommunity();$('identity').textContent=user.email;$('role').textContent=data.role==='super_admin'?'Super-administrateur':'Administrateur';
- $('login').classList.add('hidden');$('dashboard').classList.remove('hidden');notify('Connexion autorisée.');await loadActivities()
+ $('login').classList.add('hidden');$('dashboard').classList.remove('hidden');notify('Connexion autorisée.');await loadActivities();await loadArticles()
 }
 async function loadCommunity(){
  const {data,error}=await client.from('community_settings').select('whatsapp_url,facebook_url,whatsapp_members_min,members_updated_at').eq('id',1).maybeSingle();
@@ -119,6 +136,69 @@ $('activityForm').addEventListener('submit',async e=>{
  if(!result.data?.length){notify('Aucune ligne modifiée : vérifiez les autorisations.',true);return}
  notify('Activité enregistrée avec succès.');$('editor').classList.add('hidden');await loadActivities()
 });
+
+// Édition collaborative des publications ODIT V7
+let articleEditingId=null, articleItems=[], articleSaveStatus='draft';
+const ARTICLE_FIELDS={slug:'artSlug',content_type:'artType',category:'artCategory',author_name:'artAuthor',title_fr:'artTitleFr',title_en:'artTitleEn',excerpt_fr:'artExcerptFr',excerpt_en:'artExcerptEn',body_fr:'artBodyFr',body_en:'artBodyEn',image_url:'artImage',source_url:'artSource',source_name:'artSourceName'};
+function openArticleEditor(article=null){
+ articleEditingId=article?.id||null;$('articleForm').reset();
+ for(const [field,id] of Object.entries(ARTICLE_FIELDS))$(id).value=article?.[field]??(field==='content_type'?'article':field==='category'?'general':'');
+ if(!article&&currentUser)$('artAuthor').value=currentUser.user_metadata?.full_name||currentUser.email?.split('@')[0]||'';
+ $('articleEditorTitle').textContent=article?'Modifier : '+article.title_fr:'Nouvel article';
+ $('artArchiveBtn').classList.toggle('hidden',!article||article.status==='archived');
+ $('articleEditor').classList.remove('hidden');$('articleEditor').scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function loadArticles(){
+ $('articleList').textContent='Chargement des publications…';
+ const {data,error}=await client.from('articles').select('*').order('updated_at',{ascending:false}).limit(200);
+ if(error){$('articleList').textContent='Erreur de lecture : '+errorText(error);return}
+ articleItems=data||[];$('articleList').replaceChildren();
+ if(!articleItems.length){$('articleList').textContent='Aucun article. Créez votre première publication.';return}
+ for(const a of articleItems){
+  const card=document.createElement('article');card.className='item';
+  const title=document.createElement('h3');title.textContent=a.title_fr;
+  const meta=document.createElement('p');meta.className='article-meta';meta.textContent=[a.content_type==='actualite'?'Actualité IT':'Article ODIT',a.category,a.status,a.author_name,a.published_at?new Date(a.published_at).toLocaleDateString('fr-FR'):''].filter(Boolean).join(' · ');
+  const desc=document.createElement('p');desc.className='hint';desc.textContent=(a.excerpt_fr||a.body_fr||'').slice(0,200);
+  const actions=document.createElement('div');actions.className='actions';
+  const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Modifier';edit.onclick=()=>openArticleEditor(a);
+  const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Supprimer';del.onclick=()=>deleteArticle(a);
+  actions.append(edit,del);card.append(title,meta,desc,actions);$('articleList').append(card)
+ }
+}
+async function deleteArticle(a){
+ if(!confirm('Supprimer définitivement « '+a.title_fr+' » ?'))return;
+ const {data,error}=await client.from('articles').delete().eq('id',a.id).select('id');
+ if(error||!data?.length){notify('Suppression impossible : '+(error?errorText(error):'autorisation refusée'),true);return}
+ notify('Article supprimé.');await loadArticles()
+}
+$('newArticleBtn').onclick=()=>openArticleEditor();
+$('closeArticleBtn').onclick=()=>$('articleEditor').classList.add('hidden');
+$('artDraftBtn').addEventListener('click',()=>articleSaveStatus='draft');
+$('artPublishBtn').addEventListener('click',()=>articleSaveStatus='published');
+$('articleForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const status=e.submitter?.dataset?.status||articleSaveStatus;
+ const payload={};for(const [field,id] of Object.entries(ARTICLE_FIELDS)){const v=$(id).value.trim();payload[field]=v||null}
+ if(!payload.slug||!payload.title_fr||!payload.body_fr||!payload.author_name){notify('Complétez le slug, le titre, le contenu et l’auteur.',true);return}
+ if(payload.content_type==='actualite'&&!payload.source_url){notify('Une actualité exige un lien vers sa source originale.',true);return}
+ if(['image_url','source_url'].some(k=>payload[k]&&!/^https:\/\//i.test(payload[k]))){notify('Les liens doivent commencer par https://',true);return}
+ payload.status=status;
+ $('artDraftBtn').disabled=true;$('artPublishBtn').disabled=true;
+ try{
+  let result;
+  if(articleEditingId)result=await client.from('articles').update(payload).eq('id',articleEditingId).select('id');
+  else result=await client.from('articles').insert({...payload,author_id:currentUser.id}).select('id');
+  if(result.error||!result.data?.length){notify('Enregistrement impossible : '+(result.error?errorText(result.error):'aucune ligne autorisée'),true);return}
+  notify(status==='published'?'Article publié dans Supabase.':'Brouillon enregistré.');$('articleEditor').classList.add('hidden');await loadArticles();
+ }finally{$('artDraftBtn').disabled=false;$('artPublishBtn').disabled=false}
+});
+$('artArchiveBtn').onclick=async()=>{
+ if(!articleEditingId||!confirm('Archiver cet article ?'))return;
+ const {data,error}=await client.from('articles').update({status:'archived'}).eq('id',articleEditingId).select('id');
+ if(error||!data?.length){notify('Archivage impossible : '+(error?errorText(error):'autorisation refusée'),true);return}
+ notify('Article archivé.');$('articleEditor').classList.add('hidden');await loadArticles();
+};
+
 (async()=>{
  if(!window.supabase?.createClient){notify('Bibliothèque de connexion indisponible. Vérifiez votre accès Internet.',true);return}
  client=window.supabase.createClient(URL_SUPABASE,PUBLIC_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
