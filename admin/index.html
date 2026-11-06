@@ -6,6 +6,9 @@
 .image-upload{border:1px dashed #53c58e;border-radius:14px;padding:18px;background:#0c3427}.image-preview{display:block;max-width:100%;width:360px;aspect-ratio:1200/630;object-fit:contain;border-radius:10px;margin-top:12px;background:#051a13}.image-upload .actions{align-items:center}.image-upload input[type=file]{padding:10px}.article-body{min-height:260px}.article-meta{font-size:.82rem;color:#b9d6c9}.article-list .item{margin-bottom:12px}#articleEditor{scroll-margin-top:20px}
 
 .rich-tools{display:flex;gap:8px;flex-wrap:wrap;margin:9px 0}.rich-tools button{padding:9px 12px;background:#1a6045;color:#eafff3;border:1px solid #62c99a}.rich-preview{border:1px solid #ffffff40;background:#09281f;border-radius:12px;padding:22px;margin:12px 0;line-height:1.75;overflow-wrap:anywhere}.rich-preview h2,.rich-preview h3{color:#7cf0b5}.rich-preview img{display:block;max-width:100%;height:auto;border-radius:12px;margin:18px auto 6px}.rich-preview figure{margin:20px 0;text-align:center}.rich-preview figcaption{font-size:.85rem;color:#b9d6c9}.rich-preview pre{overflow:auto;background:#031710;padding:15px;border-radius:9px}.rich-preview code{background:#1b4a38;padding:2px 5px}.rich-preview a{color:#8aefbd}.rich-preview blockquote{border-left:3px solid #45e09b;padding-left:15px;color:#b9d6c9}.rich-preview .empty{color:#b9d6c9}.rich-img-controls{border:1px dashed #62c99a;padding:16px;border-radius:12px;background:#0b3024;margin:10px 0}.rich-img-controls input{margin:8px 0}.rich-img-controls button{margin:7px 0}.rich-hint{font-size:.84rem;color:#b9d6c9}
+
+/* ODIT Lab Academy — candidatures */
+.lab-stats{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}.lab-stat{border:1px solid #ffffff26;border-radius:12px;padding:12px 16px;background:#0d3024}.lab-stat strong{font-size:1.45rem;color:#78eab0}.lab-stat small{display:block}.lab-answers{white-space:pre-wrap;overflow-wrap:anywhere;background:#0a2a20;border:1px solid #ffffff1a;padding:12px;border-radius:9px}.lab-filter{max-width:230px}.lab-status-pending{color:#ffe6a3}.lab-status-approved{color:#8affbf}.lab-status-rejected{color:#ffb7b7}.lab-review-note{margin-top:12px}.lab-review-note textarea{min-height:64px}
 </style></head>
 <body><header><strong>OD<span>IT</span> <small>Administration</small></strong><a href="../" style="color:#8ff2bc">← Site public</a></header>
 <main><h1>Tableau de bord ODIT</h1><p>Gestion sécurisée des activités · Accès réservé aux responsables autorisés</p>
@@ -13,7 +16,13 @@
 <section class="panel" id="login"><h2>Connexion administrateur</h2><form id="loginForm" style="max-width:440px"><div style="margin:15px 0"><label for="email">Adresse e-mail</label><input id="email" type="email" autocomplete="username" required></div><div style="margin:15px 0"><label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password" required></div><button id="loginBtn" type="submit">Se connecter</button></form><p class="hint">Les inscriptions publiques sont désactivées. Utilisez le compte créé dans Supabase Authentication.</p></section>
 <section id="dashboard" class="hidden"><div class="panel toolbar"><div><strong id="identity"></strong><br><small id="role"></small></div><button id="logout" class="secondary">Se déconnecter</button></div>
 <section class="panel hidden" id="communityPanel"><h2>Paramètres ODIT — Communauté</h2><p class="hint">Réservé au super-administrateur. Les changements seront visibles sur le site public après son intégration à cette table.</p><form id="communityForm"><div class="grid"><div class="full"><label for="communityWhatsapp">Lien d’invitation WhatsApp</label><input id="communityWhatsapp" type="url" placeholder="https://chat.whatsapp.com/..." required></div><div class="full"><label for="communityFacebook">Lien de la page Facebook</label><input id="communityFacebook" type="url" placeholder="https://www.facebook.com/..." required></div><div><label for="communityMembers">Nombre minimum de membres WhatsApp</label><input id="communityMembers" type="number" min="0" step="1" required></div><div><label>Dernière actualisation du compteur</label><p id="communityUpdated" class="hint">—</p></div></div><p class="hint">Saisir un chiffre vérifié. Le compteur ne mesure pas les membres connectés en temps réel.</p><button id="communitySave" type="submit">Enregistrer les paramètres</button></form></section>
-<section class="panel" id="articlePanel"><div class="toolbar"><div><h2>Articles &amp; Actualités IT</h2><p class="hint">Tous les administrateurs peuvent rédiger et publier.</p></div><button type="button" id="newArticleBtn">+ Nouvel article</button></div><div id="articleList" class="article-list">Chargement…</div></section>
+<section class="panel" id="labApplicationsPanel">
+ <div class="toolbar"><div><h2>🧪 Lab Academy — Candidatures</h2><p class="hint">Vérifiez les réponses et l'appartenance réelle au groupe WhatsApp avant de prendre une décision.</p></div><button type="button" id="labRefresh" class="secondary">Actualiser</button></div>
+ <div class="lab-stats" id="labStats" aria-live="polite"></div>
+ <div class="toolbar"><label for="labFilter">Afficher les candidatures</label><select id="labFilter" class="lab-filter"><option value="pending">En attente</option><option value="approved">Approuvées</option><option value="rejected">Refusées</option><option value="suspended">Suspendues</option><option value="all">Toutes</option></select></div>
+ <p id="labNotice" class="hint" role="status" aria-live="polite"></p><div id="labApplicationList">Connectez-vous pour voir les candidatures.</div>
+ </section>
+ <section class="panel" id="articlePanel"><div class="toolbar"><div><h2>Articles &amp; Actualités IT</h2><p class="hint">Tous les administrateurs peuvent rédiger et publier.</p></div><button type="button" id="newArticleBtn">+ Nouvel article</button></div><div id="articleList" class="article-list">Chargement…</div></section>
 <section class="panel hidden" id="articleEditor"><div class="toolbar"><h2 id="articleEditorTitle">Nouvel article</h2><button type="button" id="closeArticleBtn" class="secondary">Fermer</button></div>
 <form id="articleForm"><div class="grid">
 <div><label for="artSlug">Identifiant URL (slug) *</label><input id="artSlug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="comprendre-les-vlan"></div>
@@ -53,7 +62,7 @@ function errorText(e){return e?.message||'Erreur inconnue'}
 function localKinshasa(iso){if(!iso)return '';const d=new Date(new Date(iso).getTime()+3600000);return d.toISOString().slice(0,16)}
 function toUTC(value){return value?new Date(value+':00+01:00').toISOString():null}
 function setBusy(id,b){$(id).disabled=b}
-function clearAuthUI(){$('login').classList.remove('hidden');$('dashboard').classList.add('hidden');currentUser=null;currentRole=null;articleEditingId=null;$('communityPanel').classList.add('hidden')}
+function clearAuthUI(){$('login').classList.remove('hidden');$('dashboard').classList.add('hidden');currentUser=null;currentRole=null;articleEditingId=null;$('communityPanel').classList.add('hidden');$('labApplicationList').textContent='Connectez-vous pour voir les candidatures.'}
 async function verify(){
  const {data:{user},error}=await client.auth.getUser();
  if(error||!user){clearAuthUI();return}
@@ -62,7 +71,7 @@ async function verify(){
   await client.auth.signOut();clearAuthUI();notify('Accès refusé : ce compte ne dispose pas du rôle administrateur.',true);return
  }
  currentUser=user;currentRole=data.role;$('communityPanel').classList.toggle('hidden',currentRole!=='super_admin');if(currentRole==='super_admin')await loadCommunity();$('identity').textContent=user.email;$('role').textContent=data.role==='super_admin'?'Super-administrateur':'Administrateur';
- $('login').classList.add('hidden');$('dashboard').classList.remove('hidden');notify('Connexion autorisée.');await loadActivities();await loadArticles()
+ $('login').classList.add('hidden');$('dashboard').classList.remove('hidden');notify('Connexion autorisée.');await loadActivities();await loadArticles();await loadLabApplications()
 }
 async function loadCommunity(){
  const {data,error}=await client.from('community_settings').select('whatsapp_url,facebook_url,whatsapp_members_min,members_updated_at').eq('id',1).maybeSingle();
@@ -138,6 +147,83 @@ $('activityForm').addEventListener('submit',async e=>{
  if(!result.data?.length){notify('Aucune ligne modifiée : vérifiez les autorisations.',true);return}
  notify('Activité enregistrée avec succès.');$('editor').classList.add('hidden');await loadActivities()
 });
+
+
+// ODIT Lab Academy — examen manuel des candidatures
+let labApplicationsCache=[],labMembersCache=[];
+function labNotice(message,error=false){const n=$('labNotice');n.textContent=message;n.className=error?'error':'hint'}
+function labDate(value){return value?new Date(value).toLocaleString('fr-FR',{timeZone:'Africa/Kinshasa',dateStyle:'medium',timeStyle:'short'}):'—'}
+function labNode(tag,cls,value){const e=document.createElement(tag);if(cls)e.className=cls;if(value!==undefined)e.textContent=String(value);return e}
+async function loadLabApplications(){
+ if(!currentUser||!['admin','super_admin'].includes(currentRole))return;
+ const list=$('labApplicationList');list.textContent='Chargement des candidatures…';labNotice('');
+ const [mr,ar]=await Promise.all([
+  client.from('lab_members').select('user_id,full_name,whatsapp_display_name,membership_status,approved_at,reviewed_by,review_note,created_at').order('created_at',{ascending:false}).limit(500),
+  client.from('lab_applications').select('id,user_id,meaning_answer,missions_answer,claims_whatsapp_membership,submitted_at').order('submitted_at',{ascending:false}).limit(500)
+ ]);
+ if(mr.error||ar.error){list.textContent='Impossible de charger les candidatures.';labNotice('Erreur Supabase : '+errorText(mr.error||ar.error),true);return}
+ labMembersCache=mr.data||[];labApplicationsCache=ar.data||[];
+ const counts={pending:0,approved:0,rejected:0,suspended:0};
+ for(const m of labMembersCache)if(Object.hasOwn(counts,m.membership_status))counts[m.membership_status]++;
+ const stats=$('labStats');stats.replaceChildren();
+ for(const [key,label] of [['pending','En attente'],['approved','Approuvés'],['rejected','Refusés'],['suspended','Suspendus']]){
+  const card=labNode('div','lab-stat');card.append(labNode('strong','',counts[key]),labNode('small','',label));stats.append(card)
+ }
+ renderLabApplications();
+}
+function renderLabApplications(){
+ const list=$('labApplicationList');list.replaceChildren();
+ const filter=$('labFilter').value;
+ const applicationsByUser=new Map(labApplicationsCache.map(a=>[a.user_id,a]));
+ const members=labMembersCache.filter(m=>filter==='all'||m.membership_status===filter);
+ if(!members.length){list.append(labNode('p','hint','Aucune candidature dans cette catégorie.'));return}
+ for(const m of members){
+  const a=applicationsByUser.get(m.user_id);
+  const card=labNode('article','item');
+  const title=labNode('h3','',m.full_name);
+  const status=labNode('span','status lab-status-'+m.membership_status,m.membership_status);
+  card.append(title,status,labNode('p','hint','Nom WhatsApp déclaré : '+m.whatsapp_display_name+' · Demande : '+labDate(a?.submitted_at||m.created_at)));
+  if(a){
+   card.append(labNode('strong','','1. Que signifie ODIT ?'),labNode('p','lab-answers',a.meaning_answer));
+   card.append(labNode('strong','','2. Missions d’ODIT'),labNode('p','lab-answers',a.missions_answer));
+   card.append(labNode('p','hint','3. Déclare appartenir au groupe WhatsApp : '+(a.claims_whatsapp_membership?'Oui':'Non')));
+  }else card.append(labNode('p','error','Questionnaire introuvable : ne pas approuver avant vérification.'));
+  if(m.review_note)card.append(labNode('p','hint','Note administrative : '+m.review_note));
+  if(m.approved_at)card.append(labNode('p','hint','Approbation : '+labDate(m.approved_at)));
+  if(m.membership_status==='pending'){
+   const wrap=labNode('div','lab-review-note');
+   const lbl=labNode('label','','Note de vérification / motif du refus');
+   const note=labNode('textarea');note.placeholder='Ex. Présence dans le groupe vérifiée le…';note.maxLength=1500;lbl.append(note);wrap.append(lbl);
+   const actions=labNode('div','actions');
+   const approve=labNode('button','','✓ Approuver');approve.type='button';
+   const reject=labNode('button','danger','✕ Refuser');reject.type='button';
+   approve.disabled=!a||!a.claims_whatsapp_membership;
+   if(approve.disabled)approve.title='Questionnaire absent ou appartenance non déclarée';
+   approve.onclick=()=>reviewLabMember(m,'approved',note.value,approve,reject);
+   reject.onclick=()=>reviewLabMember(m,'rejected',note.value,approve,reject);
+   actions.append(approve,reject);wrap.append(actions);card.append(wrap)
+  }
+  list.append(card)
+ }
+ if(labMembersCache.length===500||labApplicationsCache.length===500)labNotice('Attention : limite de 500 résultats atteinte. Une pagination sera nécessaire.');
+}
+async function reviewLabMember(member,status,note,approveBtn,rejectBtn){
+ if(!currentUser||!['admin','super_admin'].includes(currentRole))return;
+ const reason=note.trim();
+ if(status==='rejected'&&!reason){labNotice('Indiquez un motif avant de refuser.',true);return}
+ if(status==='approved'&&!reason){labNotice('Indiquez comment l’appartenance WhatsApp a été vérifiée avant d’approuver.',true);return}
+ const action=status==='approved'?'APPROUVER':'REFUSER';
+ if(!confirm(action+' la candidature de « '+member.full_name+' » ? Vérifiez son appartenance dans WhatsApp avant de confirmer.'))return;
+ approveBtn.disabled=true;rejectBtn.disabled=true;labNotice('Enregistrement de la décision…');
+ const payload={membership_status:status,review_note:reason,reviewed_by:currentUser.id};
+ if(status==='approved')payload.approved_at=new Date().toISOString();
+ else payload.approved_at=null;
+ const {data,error}=await client.from('lab_members').update(payload).eq('user_id',member.user_id).eq('membership_status','pending').select('user_id,membership_status,approved_at');
+ if(error||!data?.length){approveBtn.disabled=false;rejectBtn.disabled=false;labNotice('Décision non enregistrée : '+(error?errorText(error):'candidature déjà traitée ou accès refusé'),true);return}
+ await loadLabApplications();labNotice('Décision enregistrée : '+member.full_name+' — '+status+'.');
+}
+$('labRefresh').addEventListener('click',loadLabApplications);
+$('labFilter').addEventListener('change',renderLabApplications);
 
 // Édition collaborative des publications ODIT V7
 let articleEditingId=null, articleItems=[], articleSaveStatus='draft';
